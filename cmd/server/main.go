@@ -15,7 +15,7 @@ import (
 var ctx context.Context
 var err error
 var client *mongo.Client
-var MongoUri string = "mongodb://localhost:27017/auth-server?authSource=admin"
+var MongoUri string = "mongodb://test:test@localhost:27017/auth-server?authSource=admin"
 
 func init() {
 	// Mongo
