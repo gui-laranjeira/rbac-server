@@ -37,14 +37,15 @@ func init() {
 	// Redis
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
-		Password: "",
+		Password: "root",
 		DB:       0,
 	})
 	status := redisClient.Ping(ctx)
 	if status.Err() != nil {
-		log.Fatalf("Error in connecting to Redis database: %v", status.Err())
+		log.Fatalf("Error while connecting to Redis: %v", status.Err())
 		return
 	}
+
 	log.Printf("Connected to Redis: %v\n", status)
 
 	userController = controllers.NewUserController(collection, ctx, redisClient)
@@ -54,10 +55,10 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Post("/signup", userController.CreateUser)
-	err := app.Listen(":3000")
+	err := app.Listen(":8080")
 	if err != nil {
 		log.Fatal("Error in running server")
 		return
 	}
-	log.Println("Server is running on port 3000")
+	log.Println("Server is running on port 8080")
 }
