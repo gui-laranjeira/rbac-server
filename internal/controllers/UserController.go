@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gui-laranjeira/rbac-server/internal/models"
@@ -54,6 +55,7 @@ func (u *UserController) CreateUser(c *fiber.Ctx) error {
 	user.Username = singupRequest.Username
 	user.Password = hashedPass
 	user.Permissions = make([]models.Permissions, 0)
+	user.CreatedAt = time.Now()
 
 	savedUser, err := u.collection.InsertOne(u.ctx, user)
 	if err != nil {
