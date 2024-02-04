@@ -55,6 +55,7 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Post("/signup", userController.CreateUser)
+	app.Post("/addPermission", userController.AddPermission)
 	err := app.Listen(":8080")
 	if err != nil {
 		log.Fatal("Error in running server")
