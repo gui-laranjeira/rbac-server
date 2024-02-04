@@ -56,7 +56,13 @@ func (u *UserController) CreateUser(c *fiber.Ctx) error {
 			"message": "Internal Server Error",
 		})
 	}
-
+	tempUser := new(models.User)
+	err = u.collection.FindOne(u.ctx, bson.D{{Key: "username", Value: singupRequest.Username}}).Decode(&tempUser)
+	if err == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "User already exists",
+		})
+	}
 	user := new(models.User)
 	user.ID = primitive.NewObjectID()
 	user.Username = singupRequest.Username
@@ -170,4 +176,3 @@ func (u *UserController) Login(c *fiber.Ctx) error {
 	log.Println("JWT Token: ", tokenString)
 	return c.JSON(fiber.Map{"token": tokenString})
 }
-
