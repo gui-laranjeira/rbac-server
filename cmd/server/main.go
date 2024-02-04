@@ -56,6 +56,8 @@ func main() {
 	app.Use(logger.New())
 	app.Post("/signup", userController.CreateUser)
 	app.Post("/addPermission", userController.AddPermission)
+	app.Post("/login", userController.Login)
+
 	err := app.Listen(":8080")
 	if err != nil {
 		log.Fatal("Error in running server")
