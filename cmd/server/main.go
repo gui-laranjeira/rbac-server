@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gui-laranjeira/rbac-server/internal/controllers"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,7 +16,8 @@ import (
 var ctx context.Context
 var err error
 var client *mongo.Client
-var MongoUri string = "mongodb://test:test@localhost:27017/auth-server?authSource=admin"
+var MongoUri string = "mongodb://mongo:27017/auth-server?authSource=admin"
+var userController *controllers.UserController
 
 func init() {
 	// Mongo
@@ -30,10 +32,11 @@ func init() {
 		return
 	}
 	log.Println("Connected to MongoDB database")
+	collection := client.Database("auth-server").Collection("users")
 
 	// Redis
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,
 	})
@@ -43,12 +46,14 @@ func init() {
 		return
 	}
 	log.Printf("Connected to Redis: %v\n", status)
+
+	userController = controllers.NewUserController(collection, ctx, redisClient)
 }
 
 func main() {
 	app := fiber.New()
 	app.Use(logger.New())
-
+	app.Post("/signup", userController.CreateUser)
 	err := app.Listen(":3000")
 	if err != nil {
 		log.Fatal("Error in running server")

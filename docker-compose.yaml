@@ -1,20 +1,54 @@
 version: '3'
 services:
+  app:
+      build:
+        dockerfile: Dockerfile
+        context: .
+        target: final
+      container_name: app
+      ports:
+        - 8080:8080
+      restart: unless-stopped
+      depends_on:
+        - mongodb
+      networks:
+        - auth-network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongoui
+    ports:
+      - 8081:8081
+    restart: always
+    depends_on:
+      - mongodb
+    environment:
+      - ME_CONFIG_BASICAUTH_USERNAME=root
+      - ME_CONFIG_BASICAUTH_PASSWORD=root
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - auth-network
+
   mongodb:
-    image: mongo
+    image: mongo:latest
+    container_name: mongo
     ports:
       - 27017:27017
     restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: test
-      MONGO_INITDB_ROOT_PASSWORD: test
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - auth-network
 
   redis:
     image: redis
+    container_name: redis
     ports:
       - 6379:6379
 
 volumes:
   mongodb_data:
+
+networks:
+  auth-network:
+    driver: bridge
