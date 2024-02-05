@@ -176,3 +176,7 @@ func (u *UserController) Login(c *fiber.Ctx) error {
 	log.Println("JWT Token: ", tokenString)
 	return c.JSON(fiber.Map{"token": tokenString})
 }
+
+func (u *UserController) TestRoute(c *fiber.Ctx) error {
+	return c.SendString("Admin Hello, World 👋!")
+}

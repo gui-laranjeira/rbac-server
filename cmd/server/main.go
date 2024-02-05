@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gui-laranjeira/rbac-server/internal/controllers"
+	"github.com/gui-laranjeira/rbac-server/internal/middleware"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,6 +17,7 @@ import (
 var ctx context.Context
 var err error
 var client *mongo.Client
+var _middleware *middleware.Middleware
 var MongoUri string = "mongodb://mongo:27017/auth-server?authSource=admin"
 var userController *controllers.UserController
 
@@ -48,6 +50,7 @@ func init() {
 
 	log.Printf("Connected to Redis: %v\n", status)
 
+	_middleware = middleware.NewMiddleware(ctx, redisClient)
 	userController = controllers.NewUserController(collection, ctx, redisClient)
 }
 
@@ -57,6 +60,7 @@ func main() {
 	app.Post("/signup", userController.CreateUser)
 	app.Post("/addPermission", userController.AddPermission)
 	app.Post("/login", userController.Login)
+	app.Post("/adminTestRoute", _middleware.AdminMiddlewareHandler, userController.TestRoute)
 
 	err := app.Listen(":8080")
 	if err != nil {
