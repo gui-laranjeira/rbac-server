@@ -6,4 +6,4 @@
  - Go
  - Fiber
  - MongoDB
- - Redis for caching user sessions
+ - Redis for caching permissions
