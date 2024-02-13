@@ -4,14 +4,15 @@ import (
 	"context"
 	"log"
 
+	"github.com/gofiber/contrib/fiberzap/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gui-laranjeira/rbac-server/internal/controllers"
 	"github.com/gui-laranjeira/rbac-server/internal/middleware"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.uber.org/zap"
 )
 
 var ctx context.Context
@@ -56,7 +57,12 @@ func init() {
 
 func main() {
 	app := fiber.New()
-	app.Use(logger.New())
+	logger, _ := zap.NewProduction()
+
+	app.Use(fiberzap.New(fiberzap.Config{
+		Logger: logger,
+	}))
+
 	app.Post("/signup", userController.CreateUser)
 	app.Post("/addPermission", userController.AddPermission)
 	app.Post("/login", userController.Login)
